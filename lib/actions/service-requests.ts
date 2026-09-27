@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUserId } from "@/lib/require-user";
 
 const serviceRequestSchema = z.object({
   service: z.enum([
@@ -42,10 +43,12 @@ export async function createServiceRequest(
 
   const requestCount = await prisma.serviceRequest.count();
   const requestNumber = `APX-SR-${String(requestCount + 1).padStart(6, "0")}`;
+  const userId = await getCurrentUserId();
 
   await prisma.serviceRequest.create({
     data: {
       requestNumber,
+      userId,
       service: data.service,
       fullName: data.fullName,
       phone: data.phone,

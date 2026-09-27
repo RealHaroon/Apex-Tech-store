@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { ProductIcon } from "@/components/icons";
+import { ProductThumb } from "@/components/ProductThumb";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { formatPKR } from "@/lib/format";
 
@@ -14,6 +14,7 @@ export default async function ProductPage({
 }) {
   const product = await prisma.product.findUnique({
     where: { slug: params.slug },
+    include: { category: true },
   });
 
   if (!product) notFound();
@@ -26,13 +27,17 @@ export default async function ProductPage({
         </Link>
         <div className="flex flex-wrap gap-12 mt-6">
           <div className="flex-1 basis-[320px] max-w-[420px]">
-            <div className="aspect-square bg-ice rounded-2xl flex items-center justify-center">
-              <ProductIcon icon={product.icon} className="!w-24 !h-24" />
-            </div>
+            <ProductThumb
+              imageUrl={product.imageUrl}
+              icon={product.icon}
+              name={product.name}
+              className="aspect-square rounded-2xl"
+              iconClassName="!w-24 !h-24"
+            />
           </div>
           <div className="flex-1 basis-[320px]">
             <span className="inline-block text-[0.8rem] text-navy-mid bg-navy/[0.07] px-3 py-1 rounded-full font-semibold mb-4">
-              {product.category === "SOFTWARE" ? "Software license" : "Accessory"}
+              {product.category.name}
             </span>
             <h1 className="text-[2rem] font-semibold">{product.name}</h1>
             <p className="text-muted text-[1.02rem] mt-4 max-w-[52ch]">

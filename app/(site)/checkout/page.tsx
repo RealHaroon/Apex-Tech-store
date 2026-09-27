@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore, cartSubtotal } from "@/lib/cart-store";
 import { createOrder } from "@/lib/actions/orders";
+import { getCurrentUser } from "@/lib/actions/user-auth";
 import { PageHero } from "@/components/SectionHead";
 import { formatPKR } from "@/lib/format";
 import { Button } from "@/components/Button";
@@ -24,7 +25,15 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    getCurrentUser().then((user) => {
+      if (!user) return;
+      setCustomerName((v) => v || user.name);
+      setEmail((v) => v || user.email);
+      if (user.phone) setPhone((v) => v || user.phone!);
+    });
+  }, []);
 
   if (!mounted) return null;
 

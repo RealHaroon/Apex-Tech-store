@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ProductIcon } from "@/components/icons";
+import { ProductThumb } from "@/components/ProductThumb";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { formatPKR } from "@/lib/format";
 import type { ProductSummary } from "@/lib/types";
@@ -8,9 +8,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
   return (
     <div className="flex-1 basis-[250px] max-w-[320px] mb-6 border border-line rounded-xl overflow-hidden flex flex-col bg-white">
       <Link href={`/shop/${product.slug}`} className="block">
-        <div className="h-[120px] bg-ice flex items-center justify-center">
-          <ProductIcon icon={product.icon} />
-        </div>
+        <ProductThumb imageUrl={product.imageUrl} icon={product.icon} name={product.name} />
       </Link>
       <div className="p-[18px] flex flex-col flex-1">
         <Link href={`/shop/${product.slug}`} className="no-underline">

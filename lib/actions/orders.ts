@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUserId } from "@/lib/require-user";
 
 const checkoutSchema = z.object({
   customerName: z.string().trim().min(2, "Enter your full name"),
@@ -65,10 +66,12 @@ export async function createOrder(
 
   const orderCount = await prisma.order.count();
   const orderNumber = `APX-${String(orderCount + 1).padStart(6, "0")}`;
+  const userId = await getCurrentUserId();
 
   await prisma.order.create({
     data: {
       orderNumber,
+      userId,
       customerName: data.customerName,
       phone: data.phone,
       email: data.email || null,

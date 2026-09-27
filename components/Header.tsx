@@ -15,7 +15,7 @@ const NAV_LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
-export default function Header() {
+export default function Header({ userName }: { userName?: string | null }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -79,6 +79,15 @@ export default function Header() {
                   {count}
                 </span>
               )}
+            </Link>
+          </li>
+          <li className="w-full md:w-auto md:ml-[30px] mt-2 md:mt-0">
+            <Link
+              href={userName ? "/account" : "/account/login"}
+              onClick={() => setOpen(false)}
+              className="block py-3 md:py-1 text-[0.94rem] font-medium no-underline text-ink"
+            >
+              {userName ? userName.split(" ")[0] : "Login"}
             </Link>
           </li>
           <li className="w-full md:w-auto md:ml-[30px] mt-2 md:mt-0">

@@ -2,12 +2,17 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const categories = [
+  { slug: "software", name: "Software licenses", position: 0 },
+  { slug: "accessories", name: "Tech accessories", position: 1 },
+];
+
 const products = [
   {
     slug: "windows-11-genuine",
     name: "Windows 11 (Genuine)",
     description: "Licensed activation key with install support included.",
-    category: "SOFTWARE" as const,
+    categorySlug: "software",
     icon: "software",
     price: 3500,
     priceNote: "+ setup",
@@ -17,7 +22,7 @@ const products = [
     slug: "ms-office-genuine",
     name: "MS Office (Genuine)",
     description: "Word, Excel, PowerPoint and more, student pricing available.",
-    category: "SOFTWARE" as const,
+    categorySlug: "software",
     icon: "software",
     price: 2000,
     priceNote: "+ setup",
@@ -28,7 +33,7 @@ const products = [
     name: "Video editor license",
     description:
       "Genuine license for popular editing software, plus a quick-start session.",
-    category: "SOFTWARE" as const,
+    categorySlug: "software",
     icon: "software",
     price: 4000,
     priceNote: "+ setup",
@@ -38,7 +43,7 @@ const products = [
     slug: "fast-charger",
     name: "Fast chargers",
     description: "18W & 20W USB-C chargers for phones and tablets.",
-    category: "ACCESSORY" as const,
+    categorySlug: "accessories",
     icon: "charger",
     price: 900,
     priceNote: null,
@@ -49,7 +54,7 @@ const products = [
     slug: "usb-cable",
     name: "Cables (USB-C, Lightning)",
     description: "Durable braided cables, 1m and 2m lengths.",
-    category: "ACCESSORY" as const,
+    categorySlug: "accessories",
     icon: "cable",
     price: 400,
     priceNote: null,
@@ -60,7 +65,7 @@ const products = [
     slug: "earphones",
     name: "Earphones",
     description: "Wired and budget wireless earphones with mic.",
-    category: "ACCESSORY" as const,
+    categorySlug: "accessories",
     icon: "earphones",
     price: 600,
     priceNote: null,
@@ -71,7 +76,7 @@ const products = [
     slug: "power-bank",
     name: "Power banks",
     description: "10,000mAh and 20,000mAh, dual-port fast charging.",
-    category: "ACCESSORY" as const,
+    categorySlug: "accessories",
     icon: "powerbank",
     price: 2200,
     priceNote: null,
@@ -81,14 +86,24 @@ const products = [
 ];
 
 async function main() {
-  for (const product of products) {
+  const categoryIds: Record<string, string> = {};
+  for (const category of categories) {
+    const row = await prisma.category.upsert({
+      where: { slug: category.slug },
+      update: { name: category.name, position: category.position },
+      create: category,
+    });
+    categoryIds[category.slug] = row.id;
+  }
+
+  for (const { categorySlug, ...product } of products) {
     await prisma.product.upsert({
       where: { slug: product.slug },
-      update: product,
-      create: product,
+      update: { ...product, categoryId: categoryIds[categorySlug] },
+      create: { ...product, categoryId: categoryIds[categorySlug] },
     });
   }
-  console.log(`Seeded ${products.length} products.`);
+  console.log(`Seeded ${categories.length} categories and ${products.length} products.`);
 }
 
 main()
