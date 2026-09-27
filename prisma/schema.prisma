@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductCategory {
+  SOFTWARE
+  ACCESSORY
+}
+
+enum PaymentMethod {
+  COD
+  BANK_TRANSFER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  FULFILLED
+  CANCELLED
+}
+
+enum ServiceType {
+  SOFTWARE_LICENSING
+  SETUP_ACTIVATION
+  MENTORSHIP
+  PC_REPAIR
+  OTHER
+}
+
+enum RequestStatus {
+  NEW
+  CONTACTED
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+model Product {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  name        String
+  description String
+  category    ProductCategory
+  icon        String
+  price       Int
+  priceNote   String?
+  startingPrice Boolean       @default(false)
+  featured    Boolean         @default(false)
+  inStock     Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  orderNumber   String        @unique
+  customerName  String
+  phone         String
+  email         String?
+  address       String
+  city          String
+  notes         String?
+  paymentMethod PaymentMethod
+  status        OrderStatus   @default(PENDING)
+  subtotal      Int
+  items         OrderItem[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  name      String
+  price     Int
+  quantity  Int
+}
+
+model ServiceRequest {
+  id            String        @id @default(cuid())
+  requestNumber String        @unique
+  service       ServiceType
+  fullName      String
+  phone         String
+  email         String?
+  address       String?
+  preferredDate DateTime?
+  preferredTime String?
+  details       String
+  status        RequestStatus @default(NEW)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
